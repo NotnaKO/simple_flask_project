@@ -34,7 +34,8 @@ class BaseNotConnection(Exception):
     pass
 
 
-def create_session():
+def create_session() -> Session:
     if __factory is None:
+        error("Database was not connect")
         raise BaseNotConnection("Database was not connect")
     return __factory
