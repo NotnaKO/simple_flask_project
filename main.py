@@ -7,19 +7,20 @@ from data.db_session import global_init
 from globals import ADDRESS
 from data import users_resource, notes_resource
 
-logging.basicConfig(level=logging.INFO, filemode='a', filename='py_log.log')
+logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="a",
+                    format="%(asctime)s %(levelname)s %(message)s")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'some_secret_key'
-global_init('db/news_db.db')
+global_init('db/notes_db.db')
 login_manager = LoginManager()
 login_manager.init_app(app)
 api = Api(app)
 
 api.add_resource(users_resource.UserListResource, '/api/v2/users')
-api.add_resource(news_resource.NewsListResource, '/api/v2/news')
+api.add_resource(notes_resource.NewsListResource, '/api/v2/news')
 api.add_resource(users_resource.UserResource, '/api/v2/users/<int:user_id>')
-api.add_resource(news_resource.NewsResource, '/api/v2/news/<int:news_id>')
+api.add_resource(notes_resource.NewsResource, '/api/v2/news/<int:news_id>')
 
 
 @app.route('/')

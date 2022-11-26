@@ -1,7 +1,6 @@
 import logging
 
 from sqlalchemy.orm import Session
-from data.users_resource import abort_if_user_not_found
 from data.db_session import create_session
 from data.user import User
 from email_validate import validate

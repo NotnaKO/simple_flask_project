@@ -8,7 +8,7 @@ from data.db_session import SqlAlchemyBase
 
 
 class Notes(SqlAlchemyBase, SerializerMixin):
-    __table_name__ = 'news'
+    __tablename__ = 'news'
     id = Column(Integer, primary_key=True, autoincrement=True)
     author = Column(Integer, ForeignKey("users.id"))
     header = Column(String, nullable=True)

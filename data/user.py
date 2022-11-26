@@ -4,13 +4,13 @@ import sqlalchemy.orm
 import werkzeug.security
 from sqlalchemy_serializer import SerializerMixin
 from flask_login import UserMixin
-from db_session import SqlAlchemyBase
+from data.db_session import SqlAlchemyBase
 from sqlalchemy import Column, Integer, String, DateTime
 
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     """User database class"""
-    __table_name__ = "users"
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     surname = Column(String, nullable=True)

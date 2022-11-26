@@ -6,11 +6,12 @@ from flask_restful import reqparse
 
 from algorithms.algorithms_with_user import get_user_by_email, ExceptionWithUser
 from algorithms.algorithms_with_user import get_user_by_id
-from algorithms.checks import BadOldPasswordError, make_new_password, some_decode_errors
+from algorithms.checks import BadOldPasswordError, full_decode_errors, make_new_password, \
+    some_decode_errors
 from algorithms.checks import NotEqualError
 from data.notes import Notes
-from db_session import create_session
-from user import User
+from data.db_session import create_session
+from data.user import User
 
 
 def abort_if_user_not_found(user_id: int):
@@ -109,7 +110,28 @@ class UserResource(Resource):
 
 
 class UserListResource(Resource):
-    pass
+    @staticmethod
+    def get():
+        new_session = create_session()
+        user = new_session.query(User).all()
+        return jsonify({'user': [item.to_dict(only=('id', 'surname', 'name')) for item in user]})
+
+    @staticmethod
+    def post():
+        parser.add_argument('password', required=True)
+        parser.add_argument('position', type=int, default=3)
+        args = parser.parse_args()
+        # email check
+        er = full_decode_errors(args)
+        if er is not True:
+            return er
+        new_session = create_session()
+        user = User(surname=args['surname'], name=args['name'], age=args['age'],
+                    email=args['email'], address=args['address'], position=args['position'])
+        user.set_password(args['password'])
+        new_session.add(user)
+        new_session.commit()
+        return jsonify({'success': 'OK'})
 
 
 parser = reqparse.RequestParser()
