@@ -2,7 +2,7 @@ import os
 import random
 
 from flask import jsonify
-from flask_restful import reqparse
+from flask_restful import Resource, reqparse
 
 from algorithms.algorithms_with_notes import BadCategoryError, \
     BigLenCategoryError, EmptyParamsError, NotUniqueCategoryError, \
@@ -44,7 +44,7 @@ def check_sp(sp):
         return jsonify({'error': 'Not unique categories'})
 
 
-class NotesListResource:
+class NotesListResource(Resource):
     @staticmethod
     def get():
         new_session = create_session()
@@ -94,7 +94,7 @@ class NotesListResource:
         return jsonify({'success': 'OK'})
 
 
-class NotesResource:
+class NotesResource(Resource):
     @staticmethod
     def get(notes_id):
         abort_if_notes_not_found(notes_id)

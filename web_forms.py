@@ -1,29 +1,7 @@
-import logging
-
-from flask import Flask
-from flask_login import LoginManager
-from flask_restful import Api
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, EmailField, IntegerField, PasswordField, \
     StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email
-
-from data import notes_resource, users_resource
-from data.db_session import global_init
-
-logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="a",
-                    format="%(asctime)s %(levelname)s %(message)s")
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'some_secret_key'
-global_init('db/notes_db.db')
-login_manager = LoginManager()
-login_manager.init_app(app)
-api = Api(app)
-
-api.add_resource(users_resource.UserListResource, '/api/v2/users')
-api.add_resource(notes_resource.NotesListResource, '/api/v2/notes')
-api.add_resource(users_resource.UserResource, '/api/v2/users/<int:user_id>')
-api.add_resource(notes_resource.NotesResource, '/api/v2/notes/<int:notes_id>')
 
 
 class RegisterForm(FlaskForm):
@@ -38,7 +16,7 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Зарегистрироваться')
 
 
-class NewsForm(FlaskForm):
+class NotesForm(FlaskForm):
     author = StringField('Ваше логин')
     header = StringField('Заголовок новости', validators=[DataRequired()])
     politic = BooleanField('Политика')
@@ -78,9 +56,5 @@ class Page:
         self.id = i
 
 
-class EditNewsForm(NewsForm):
+class EditNotesForm(NotesForm):
     submit = SubmitField('Сохранить')
-
-
-if __name__ == '__main__':
-    app.run()
