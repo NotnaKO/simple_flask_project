@@ -1,8 +1,9 @@
-import sqlalchemy
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.declarative import declarative_base
 import os
 from logging import error, info
+
+import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session
 
 SqlAlchemyBase = declarative_base()
 

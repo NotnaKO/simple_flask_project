@@ -1,10 +1,11 @@
 import logging
 
+from email_validate import validate
 from flask_restful import abort
 from sqlalchemy.orm import Session
+
 from data.db_session import create_session
 from data.user import User
-from email_validate import validate
 
 
 def check_user(user: User, password: str) -> bool:

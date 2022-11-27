@@ -2,10 +2,11 @@ import datetime
 
 import sqlalchemy.orm
 import werkzeug.security
-from sqlalchemy_serializer import SerializerMixin
 from flask_login import UserMixin
+from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy_serializer import SerializerMixin
+
 from data.db_session import SqlAlchemyBase
-from sqlalchemy import Column, Integer, String, DateTime
 
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):

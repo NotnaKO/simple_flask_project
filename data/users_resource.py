@@ -1,17 +1,14 @@
 import logging
 
-from flask_restful import Resource
 from flask import jsonify
-from flask_restful import reqparse
+from flask_restful import Resource, reqparse
 
-from algorithms.algorithms_with_user import abort_if_user_not_found, get_user_by_email, \
-    ExceptionWithUser
-from algorithms.algorithms_with_user import get_user_by_id
-from algorithms.checks import BadOldPasswordError, full_decode_errors, make_new_password, \
-    some_decode_errors
-from algorithms.checks import NotEqualError
-from data.notes import Notes
+from algorithms.algorithms_with_user import ExceptionWithUser, \
+    abort_if_user_not_found, get_user_by_email, get_user_by_id
+from algorithms.checks import BadOldPasswordError, NotEqualError, \
+    full_decode_errors, make_new_password, some_decode_errors
 from data.db_session import create_session
+from data.notes import Notes
 from data.user import User
 
 
@@ -23,8 +20,8 @@ class UserResource(Resource):
         abort_if_user_not_found(user_id)
         new_session = create_session()
         user = new_session.query(User).get(user_id)
-        return jsonify(({'user': user.to_dict(
-            only=('id', 'surname', 'name', 'age', 'position', 'email', 'address'))}))
+        return jsonify(({'user': user.to_dict(only=(
+            'id', 'surname', 'name', 'age', 'position', 'email', 'address'))}))
 
     @staticmethod
     def delete(user_id: int):
@@ -37,7 +34,9 @@ class UserResource(Resource):
         except ExceptionWithUser:
             return jsonify({'error': 'Bad user email or password'})
         if not user.check_password(args['password']):
-            logging.warning(f"Request to user with email {user.email} with incorrect password")
+            logging.warning(
+                f"Request to user with email {user.email} with incorrect "
+                f"password")
             return jsonify({'error': 'Bad user email or password'})
         abort_if_user_not_found(user_id)
         new_session = create_session()
@@ -66,9 +65,10 @@ class UserResource(Resource):
                 return jsonify({'error': 'Bad password'})
             if 'success' in UserResource.delete(user_id).json:
                 new_session = create_session()
-                user = User(surname=args['surname'], name=args['name'], age=args['age'],
-                            email=args['email'], address=args['address'],
-                            position=args['position'], id=user_id)
+                user = User(surname=args['surname'], name=args['name'],
+                            age=args['age'], email=args['email'],
+                            address=args['address'], position=args['position'],
+                            id=user_id)
                 new_session.add(user)
                 user.set_password(args['password'])
                 for n in news:
@@ -76,11 +76,14 @@ class UserResource(Resource):
                     user.news.append(news)
                 new_session.merge(user)
                 new_session.commit()
-                if not any([args['old_password'], args['new_password'], args['password_again']]):
+                if not any([args['old_password'], args['new_password'],
+                            args['password_again']]):
                     return jsonify({'success': 'OK'})
-        if args['old_password'] and args['new_password'] and args['password_again']:
+        if args['old_password'] and args['new_password'] and args[
+            'password_again']:
             try:
-                a = make_new_password(args['old_password'], args['new_password'],
+                a = make_new_password(args['old_password'],
+                                      args['new_password'],
                                       args['password_again'],
                                       user=get_user_by_email(args['email']))
                 if a is not True:
@@ -95,9 +98,10 @@ class UserResource(Resource):
             new_session.merge(user)
             new_session.commit()
             return jsonify({'success': 'OK'})
-        if (any([args['old_password'], args['new_password'], args['password_again']]) and args[
-            'password']) and not all(
-                [args['old_password'], args['new_password'], args['password_again']]):
+        if (any([args['old_password'], args['new_password'],
+                 args['password_again']]) and args['password']) and not all(
+            [args['old_password'], args['new_password'],
+             args['password_again']]):
             return jsonify({'error': 'Not all new password'})
         return jsonify({'error': 'Empty passwords'})
 
@@ -107,7 +111,8 @@ class UserListResource(Resource):
     def get():
         new_session = create_session()
         user = new_session.query(User).all()
-        return jsonify({'user': [item.to_dict(only=('id', 'surname', 'name')) for item in user]})
+        return jsonify({'user': [item.to_dict(only=('id', 'surname', 'name'))
+                                 for item in user]})
 
     @staticmethod
     def post():
@@ -120,7 +125,8 @@ class UserListResource(Resource):
             return er
         new_session = create_session()
         user = User(surname=args['surname'], name=args['name'], age=args['age'],
-                    email=args['email'], address=args['address'], position=args['position'])
+                    email=args['email'], address=args['address'],
+                    position=args['position'])
         user.set_password(args['password'])
         new_session.add(user)
         new_session.commit()

@@ -1,13 +1,10 @@
-from string import ascii_letters
-from string import digits
+from string import ascii_letters, digits, printable
 
 from email_validate import validate
 from flask import jsonify
-from string import printable
 
-from algorithms.algorithms_with_user import IncorrectEmailError
-from algorithms.algorithms_with_user import get_user_by_email
-from algorithms.algorithms_with_user import UserNotFoundError
+from algorithms.algorithms_with_user import IncorrectEmailError, \
+    UserNotFoundError, get_user_by_email
 from data.user import User
 
 

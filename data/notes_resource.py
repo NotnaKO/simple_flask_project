@@ -11,7 +11,6 @@ from algorithms.algorithms_with_notes import BadCategoryError, \
     get_response_by_notes
 from algorithms.algorithms_with_user import ExceptionWithUser, check_user, \
     get_user_by_email
-
 from algorithms.checks import check_author_by_notes_id
 from data.category import Category
 from data.db_session import create_session
