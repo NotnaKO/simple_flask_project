@@ -1,5 +1,6 @@
 import logging
 
+from flask_restful import abort
 from sqlalchemy.orm import Session
 from data.db_session import create_session
 from data.user import User
@@ -12,6 +13,14 @@ def check_user(user: User, password: str) -> bool:
     if user.check_password(password):
         return True
     return False
+
+
+def abort_if_user_not_found(user_id: int):
+    new_session = create_session()
+    user = new_session.query(User).get(user_id)
+    if not user:
+        logging.warning(f"User {user_id} not found in database")
+        abort(404, message=f"User {user_id} not found in database")
 
 
 class ExceptionWithUser(Exception):

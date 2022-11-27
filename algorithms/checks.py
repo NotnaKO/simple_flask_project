@@ -8,6 +8,7 @@ from string import printable
 from algorithms.algorithms_with_user import IncorrectEmailError
 from algorithms.algorithms_with_user import get_user_by_email
 from algorithms.algorithms_with_user import UserNotFoundError
+from data.user import User
 
 
 class PasswordError(Exception):
@@ -196,3 +197,10 @@ def make_new_password(old, new, again, user):
     else:
         raise BadOldPasswordError
 
+
+def check_author_by_notes_id(author: User, notes) -> bool:
+    if not isinstance(author, User):
+        return False
+    if notes not in author.notes:
+        return False
+    return True

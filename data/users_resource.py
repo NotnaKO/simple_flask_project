@@ -1,10 +1,11 @@
 import logging
 
-from flask_restful import Resource, abort
+from flask_restful import Resource
 from flask import jsonify
 from flask_restful import reqparse
 
-from algorithms.algorithms_with_user import get_user_by_email, ExceptionWithUser
+from algorithms.algorithms_with_user import abort_if_user_not_found, get_user_by_email, \
+    ExceptionWithUser
 from algorithms.algorithms_with_user import get_user_by_id
 from algorithms.checks import BadOldPasswordError, full_decode_errors, make_new_password, \
     some_decode_errors
@@ -12,14 +13,6 @@ from algorithms.checks import NotEqualError
 from data.notes import Notes
 from data.db_session import create_session
 from data.user import User
-
-
-def abort_if_user_not_found(user_id: int):
-    new_session = create_session()
-    user = new_session.query(User).get(user_id)
-    if not user:
-        logging.warning(f"User {user_id} not found in database")
-        abort(404, message=f"User {user_id} not found in database")
 
 
 class UserResource(Resource):

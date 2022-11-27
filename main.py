@@ -18,9 +18,9 @@ login_manager.init_app(app)
 api = Api(app)
 
 api.add_resource(users_resource.UserListResource, '/api/v2/users')
-api.add_resource(notes_resource.NewsListResource, '/api/v2/news')
+api.add_resource(notes_resource.NotesListResource, '/api/v2/news')
 api.add_resource(users_resource.UserResource, '/api/v2/users/<int:user_id>')
-api.add_resource(notes_resource.NewsResource, '/api/v2/news/<int:news_id>')
+api.add_resource(notes_resource.NotesResource, '/api/v2/news/<int:news_id>')
 
 
 @app.route('/')
