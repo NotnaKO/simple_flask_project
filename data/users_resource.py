@@ -53,14 +53,17 @@ class UserResource(Resource):
         parser.add_argument('password_again')
         parser.add_argument('new_password')
         args = parser.parse_args()
-        if get_user_by_email(args['email']) != get_user_by_id(user_id):
-            return jsonify({'error': 'Bad user id'})
+        try:
+            if get_user_by_email(args['email']) != get_user_by_id(user_id):
+                return jsonify({'error': 'Bad user id'})
+        except ExceptionWithUser:
+            return jsonify({"error": "Bad user"})
         if args['password']:
             er = some_decode_errors(args)
             if er is not True:
                 return er
             user = get_user_by_email(args['email'])
-            news = user.news
+            notes = user.notes
             if not user.check_password(args['password']):
                 return jsonify({'error': 'Bad password'})
             if 'success' in UserResource.delete(user_id).json:
@@ -70,10 +73,10 @@ class UserResource(Resource):
                             address=args['address'], position=args['position'],
                             id=user_id)
                 new_session.add(user)
-                user.set_password(args['password'])
-                for n in news:
-                    news = new_session.query(Notes).get(n.id)
-                    user.news.append(news)
+                user.password = args['password']
+                for n in notes:
+                    notes = new_session.query(Notes).get(n.id)
+                    user.notes.append(notes)
                 new_session.merge(user)
                 new_session.commit()
                 if not any([args['old_password'], args['new_password'],
@@ -94,7 +97,7 @@ class UserResource(Resource):
                 return jsonify({'error': 'Not equal new and again'})
             new_session = create_session()
             user = get_user_by_id(user_id)
-            user.set_password(args['new_password'])
+            user.password = args['new_password']
             new_session.merge(user)
             new_session.commit()
             return jsonify({'success': 'OK'})
@@ -127,7 +130,7 @@ class UserListResource(Resource):
         user = User(surname=args['surname'], name=args['name'], age=args['age'],
                     email=args['email'], address=args['address'],
                     position=args['position'])
-        user.set_password(args['password'])
+        user.password = args['password']
         new_session.add(user)
         new_session.commit()
         return jsonify({'success': 'OK'})

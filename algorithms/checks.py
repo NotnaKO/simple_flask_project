@@ -1,10 +1,9 @@
-from string import ascii_letters, digits, printable
+from string import ascii_letters, printable
 
 from email_validate import validate
 from flask import jsonify
 
-from algorithms.algorithms_with_user import IncorrectEmailError, \
-    UserNotFoundError, get_user_by_email
+from algorithms.algorithms_with_user import UserNotFoundError, get_user_by_email
 from data.user import User
 
 
@@ -76,7 +75,8 @@ def hard_check_password(password: str) -> bool:
         raise LengthError
     if password.islower() or password.isupper():
         raise LetterError
-    if not password_set.issubset(set(printable)):
+    if not password_set.issubset(set(printable)) or not all(
+            [password_set & set(ascii_letters), password_set & numbers]):
         raise LanguageError
     if not (password_set | numbers):
         raise DigitError
@@ -97,37 +97,21 @@ def age_check(age):
 
 
 def check_email(email: str):
-    check = validate(email)
+    check = validate(email, check_blacklist=False, check_smtp=False)
     if not check:
         raise ValidationError
-    s = set(email)
-    if not (s.issubset(set(printable))):
-        raise LetterError
-    le, ot = False, False
-    for i in s:
-        if i in ascii_letters:
-            le = True
-        if i in printable and i not in digits and i not in ascii_letters:
-            ot = True
-        if le and ot:
-            break
-    if not le or not ot:
-        if not le:
-            raise EnglishError
-        if not ot:
-            raise OthersLettersError
     try:
         get_user_by_email(email)
-    except IncorrectEmailError or UserNotFoundError:
-        raise ValidationError
+    except UserNotFoundError:
+        pass
     else:
         raise SimilarUserError
 
 
 def decode_password_check(password):
     try:
-        le = hard_check_password(password)
-        if le != 'ok':
+        check = hard_check_password(password)
+        if not check:
             raise PasswordError
         else:
             return True

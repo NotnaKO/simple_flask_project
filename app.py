@@ -19,7 +19,7 @@ from globals import ADDRESS, CATEGORY_LIST
 from web_forms import DeleteForm, EditNotesForm, LoginForm, NotesForm, Page, \
     RegisterForm, UserForm
 
-logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="a",
+logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
                     encoding='utf-8', format="%(levelname)s %(message)s")
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'some_secret_key'
@@ -39,9 +39,9 @@ def load_user(user_id):
     return get_user_by_id(user_id)
 
 
-@app.route('/notes/edit_notes/<int:ids>', methods=['GET', 'POST'])
+@app.route('/notes/edit_notes/<int:note_id>', methods=['GET', 'POST'])
 @login_required
-def edit_notes(ids):
+def edit_notes(note_id):
     ed_notes_form = EditNotesForm()
     if ed_notes_form.validate_on_submit():
         try:
@@ -56,7 +56,7 @@ def edit_notes(ids):
                                    action_header='Редактирование новости',
                                    message="Пожалуйста, выберете категорию "
                                            "новости.")
-        resp = requests.put(ADDRESS + f'/api/v2/notes/{ids}',
+        resp = requests.put(ADDRESS + f'/api/v2/notes/{note_id}',
                             json={'password': ed_notes_form.password.data,
                                   'author': current_user.email,
                                   'preview': ed_notes_form.preview.data,
@@ -87,7 +87,7 @@ def edit_notes(ids):
                                    action_header='Редактирование новости',
                                    message='Произошла непредвиденная ошибка, '
                                            'пожалуйста попробуйте позже.')
-    notes = get_notes_by_id(ids)
+    notes = get_notes_by_id(note_id)
     if notes.user == current_user or current_user.position == 1:
         ed_notes_form.header.data = notes.header
         ed_notes_form.politic.data, ed_notes_form.technology.data, \
@@ -194,12 +194,12 @@ def register():
     return render_template('register.html', title='Регистрация', form=reg_form)
 
 
-@app.route('/users/<int:ids>', methods=['GET', 'POST'])
-def show_users_data(ids):
+@app.route('/users/<int:user_id>', methods=['GET', 'POST'])
+def show_users_data(user_id):
     user_form = UserForm()
     if user_form.validate_on_submit():
-        user = get_user_by_id(ids)
-        resp = requests.put(ADDRESS + f'/api/v2/users/{ids}',
+        user = get_user_by_id(user_id)
+        resp = requests.put(ADDRESS + f'/api/v2/users/{user_id}',
                             json={'name': user_form.name.data,
                                   'surname': user_form.surname.data,
                                   'age': user_form.age.data,
@@ -212,7 +212,7 @@ def show_users_data(ids):
                                       user_form.password_again.data,
                                   'position': user.position})
         if 'success' in resp.json():
-            user = get_user_by_id(ids)
+            user = get_user_by_id(user_id)
             params = get_params_to_show_user(user, current_user, user_form)
             if user_form.password.data and not all(
                     [user_form.old_password.data, user_form.new_password.data,
@@ -229,92 +229,101 @@ def show_users_data(ids):
                                        success_set_password=True,
                                        success_load_data=True, **params)
         else:
-            user = get_user_by_id(ids)
+            user = get_user_by_id(user_id)
             resp_js = resp.json()
             er = True
-            # email
-            if resp_js['error'] == 'EmailLetterError':
-                user_form.email.errors = [
-                    'Email может состоять из английских букв, цифр и других '
-                    'символов']
-            elif resp_js['error'] == 'EnglishError':
-                user_form.email.errors = [
-                    'Email должен содержать английские буквы']
-            elif resp_js['error'] == 'OthersLettersError':
-                user_form.email.errors = [
-                    'Email должен содержать другие символы']
-            elif resp_js['error'] == 'SimilarUserError':
-                user_form.email.errors = ["Такой пользователь уже есть"]
-            # password
-            elif resp_js['error'] == 'PasswordLetterError':
-                if user_form.password.data:
+            match resp_js["error"]:
+
+                case 'EmailLetterError':
+                    user_form.email.errors = [
+                        'Email может состоять из английских букв, цифр и '
+                        'других '
+                        'символов']
+                case 'EnglishError':
+                    user_form.email.errors = [
+                        'Email должен содержать английские буквы']
+                case 'OthersLettersError':
+                    user_form.email.errors = [
+                        'Email должен содержать другие символы']
+                case 'SimilarUserError':
+                    user_form.email.errors = ["Такой пользователь уже есть"]
+                case 'PasswordLetterError':
+                    if user_form.password.data:
+                        user_form.password.errors = [
+                            'В пароле должны присутствовать строчные и '
+                            'прописные '
+                            'буквы.']
+                    if user_form.new_password.data:
+                        user_form.new_password.errors = [
+                            'В пароле должны присутствовать строчные и '
+                            'прописные '
+                            'буквы.']
+                case 'LengthError':
+                    if user_form.password.data:
+                        user_form.password.errors = [
+                            'В пароле должно быть 8 и больше символов.']
+                    if user_form.new_password.data:
+                        user_form.new_password.errors = [
+                            'В пароле должно быть 8 и больше символов.']
+                case 'LanguageError':
+                    if user_form.password.data:
+                        user_form.password.errors = [
+                            'В пароле должны быть только буквы английского '
+                            'языка, '
+                            'цифры и другие символы.']
+                    if user_form.new_password.data:
+                        user_form.new_password.errors = [
+                            'В пароле должны быть только буквы английского '
+                            'языка, '
+                            'цифры и другие символы.']
+                case 'DigitError':
+                    if user_form.password.data:
+                        user_form.password.errors = [
+                            'В пароле должны быть цифры.']
+                    if user_form.new_password.data:
+                        user_form.new_password.errors = [
+                            'В пароле должны быть цифры.']
+                case 'SequenceError':
+                    if user_form.password.data:
+                        user_form.password.errors = [
+                            'В пароле не должно быть трёх символов, идущих '
+                            'подряд '
+                            'на клавиатуре.']
+                    if user_form.new_password.data:
+                        user_form.new_password.errors = [
+                            'В пароле не должно быть трёх символов, идущих '
+                            'подряд '
+                            'на клавиатуре.']
+                case 'AgeRangeError':
+                    user_form.age.errors = [
+                        'Возраст должен быть натуральным числом от 6 до 110.']
+                case 'ValueAgeError':
+                    user_form.age.errors = [
+                        'Возраст должен быть натуральным числом от 6 до 110.']
+                case 'Bad user':
                     user_form.password.errors = [
-                        'В пароле должны присутствовать строчные и прописные '
-                        'буквы.']
-                if user_form.new_password.data:
-                    user_form.new_password.errors = [
-                        'В пароле должны присутствовать строчные и прописные '
-                        'буквы.']
-            elif resp_js['error'] == 'LengthError':
-                if user_form.password.data:
+                        'Ошибка пользователя. Попробуйте выйти и зайти снова.']
+                case 'Bad password':
                     user_form.password.errors = [
-                        'В пароле должно быть 8 и больше символов.']
-                if user_form.new_password.data:
-                    user_form.new_password.errors = [
-                        'В пароле должно быть 8 и больше символов.']
-            elif resp_js['error'] == 'LanguageError':
-                if user_form.password.data:
+                        'Ошибка пользователя. Пожалуйста, введите правильный '
+                        'пароль.']
+                case 'Not equal new and again':
+                    user_form.password_again.errors = ['Пароли не совпадают']
+                case 'Bad old password':
+                    user_form.old_password.errors = [
+                        'Ошибка пользователя. Пожалуйста, введите правильный '
+                        'пароль.']
+                case 'Not all new password':
+                    user_form.old_password.errors = [
+                        'Пожалуйста, заполните все поля паролей перед сменой.']
+                case 'Empty passwords':
                     user_form.password.errors = [
-                        'В пароле должны быть только буквы английского языка, '
-                        'цифры и другие символы.']
-                if user_form.new_password.data:
-                    user_form.new_password.errors = [
-                        'В пароле должны быть только буквы английского языка, '
-                        'цифры и другие символы.']
-            elif resp_js['error'] == 'DigitError':
-                if user_form.password.data:
-                    user_form.password.errors = ['В пароле должны быть цифры.']
-                if user_form.new_password.data:
-                    user_form.new_password.errors = [
-                        'В пароле должны быть цифры.']
-            elif resp_js['error'] == 'SequenceError':
-                if user_form.password.data:
-                    user_form.password.errors = [
-                        'В пароле не должно быть трёх символов, идущих подряд '
-                        'на клавиатуре.']
-                if user_form.new_password.data:
-                    user_form.new_password.errors = [
-                        'В пароле не должно быть трёх символов, идущих подряд '
-                        'на клавиатуре.']
-            # age
-            elif resp_js['error'] == 'AgeRangeError' or resp_js[
-                'error'] == 'ValueAgeError':
-                user_form.age.errors = [
-                    'Возраст должен быть натуральным числом от 6 до 110.']
-            elif resp_js['error'] == 'Bad user':
-                user_form.password.errors = [
-                    'Ошибка пользователя. Попробуйте выйти и зайти снова.']
-            elif resp_js['error'] == 'Bad password':
-                user_form.password.errors = [
-                    'Ошибка пользователя. Пожалуйста, введите правильный '
-                    'пароль.']
-            elif resp_js['error'] == 'Not equal new and again':
-                user_form.password_again.errors = ['Пароли не совпадают']
-            elif resp_js['error'] == 'Bad old password':
-                user_form.old_password.errors = [
-                    'Ошибка пользователя. Пожалуйста, введите правильный '
-                    'пароль.']
-            elif resp_js['error'] == 'Not all new password':
-                user_form.old_password.errors = [
-                    'Пожалуйста, заполните все поля паролей перед сменой.']
-            elif resp_js['error'] == 'EmptyPage passwords':
-                user_form.password.errors = [
-                    'Пожалуйста, заполните это поле, если хотите изменить '
-                    'свои данные']
-                user_form.old_password.errors = [
-                    'Пожалуйста, заполните это поле, если сменить пароль']
-            else:
-                er = False
+                        'Пожалуйста, заполните это поле, если хотите изменить '
+                        'свои данные']
+                    user_form.old_password.errors = [
+                        'Пожалуйста, заполните это поле, если сменить пароль']
+                case _:
+                    er = False
             params = get_params_to_show_user(user, current_user, user_form)
             if er:
                 return render_template('show_users.html', **params)
@@ -323,7 +332,7 @@ def show_users_data(ids):
                                        message='Произошла ошибка. Проверьте '
                                                'данные ещё раз.')
     else:
-        user = get_user_by_id(ids)
+        user = get_user_by_id(user_id)
         params = get_params_to_show_user(user, current_user, user_form)
         if not current_user.is_authenticated and (
                 user.position != 2 and user.position != 1):
@@ -336,9 +345,9 @@ def show_users_data(ids):
         return render_template('show_users.html', **params)
 
 
-@app.route('/notes/notes_by_author/<int:ids>/page/<int:number>')
-def show_notes_by_author(ids, number):
-    user = get_user_by_id(ids)
+@app.route('/notes/notes_by_author/<int:user_id>/page/<int:number>')
+def show_notes_by_author(user_id, number):
+    user = get_user_by_id(user_id)
     if user.position == 3:
         abort(404)
     else:

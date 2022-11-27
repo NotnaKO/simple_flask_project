@@ -39,7 +39,7 @@ class UserNotFoundError(ExceptionWithUser):
 
 
 def get_user_by_email(email: str, session: None | Session = None) -> User:
-    check = validate(email)
+    check = validate(email, check_blacklist=False, check_smtp=False)
     if not check:
         s = "Trying to get user by incorrect email"
         logging.warning(s)
@@ -53,7 +53,7 @@ def get_user_by_email(email: str, session: None | Session = None) -> User:
     return user
 
 
-def get_user_by_id(user_id, session=False):
+def get_user_by_id(user_id, session=False) -> User:
     if not session:
         session = create_session()
     return session.query(User).get(user_id)
