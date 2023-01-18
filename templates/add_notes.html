@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="register">{{action_header}}</h1>
+<form action="" method="post" class="form">
+    {{ form.hidden_tag() }}
+    {{ form.csrf_token }}
+    {% if not current_user.is_authenticated %}
+    <div class="form-group">{{ form.author.label }}<br>
+        {{ form.author(class="form-control") }}<br>
+        {% for error in form.author.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="form-group">{{ form.header.label }}<br>
+        {{ form.header(class="form-control") }}<br>
+        {% for error in form.header.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="form-group">
+        <label>Выберете категории записей:</label><br>
+        <div class="form-check">
+            {{form.politic(class="form-check-input")}}
+            <label class="form-check-label">{{form.politic.label}}</label></div>
+        <div class="form-check">
+            {{form.technology(class="form-check-input")}}
+            <label class="form-check-label">{{form.technology.label}}</label></div>
+        <div class="form-check">
+            {{form.health(class="form-check-input")}}
+            <label class="form-check-label">{{form.health.label}}</label>
+        </div>
+    </div>
+    <div class="form-group">{{ form.preview.label }}<br>
+        {{form.preview(class="form-control", rows="4")}}<br>
+        {% for error in form.preview.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="form-group">{{ form.text.label }}<br>
+        {{form.text(class="form-control", rows="10")}}<br>
+        {% for error in form.text.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="form-group">
+        {{form.password.label}}
+        {{ form.password(class="form-control")}}
+        {% for error in form.password.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% if message %}
+    <div class="alert alert-warning">{{message}}</div>
+    {% endif %}
+</form>
+{% endblock %}

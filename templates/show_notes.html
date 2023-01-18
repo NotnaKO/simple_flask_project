@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+    <main role="main" class="container">
+        <br>
+        <div class="blog-post jumbotron">
+            <h2 class="blog-post-title" style="text-align: center">{{ notes.header }}</h2>
+            <p class="blog-post-meta">{{ notes.date }}, <a href="/users/{{ notes.author }}"
+                                                           class="text-secondary">{{ notes.author_surname
+            +
+            ' ' +
+            notes.author_name }}</a><br>
+                {% if "health" in notes.all_categories %}
+                    <a href="category/health/0"><strong class="d-inline-block mb-2 text-success">Здоровье</strong></a>
+                    &emsp;
+                {% endif %}
+                {% if "technology" in notes.all_categories %}
+                    <a href="category/technology/0"><strong class="d-inline-block mb-2 text-info">Технологии</strong></a>
+                    &emsp;
+                {% endif %}
+                {% if "politic" in notes.all_categories %}
+                    <a href="category/politic/0"><strong class="d-inline-block mb-2 text-warning">Политика</strong></a>
+                {% endif %}</p>
+            <p>{{ notes.content }}</p>
+        </div>
+        {% if current_user.is_authenticated %}
+            {% if current_user.position == 1 or (current_user.position == 2 and notes.author == current_user.id) %}
+                <a class="btn btn-info my-2 my-sm-0" href="edit_notes/{{ notes.id }}">Редактировать
+                    запись</a>
+                <a class="btn btn-danger my-2 my-sm-0" href="delete_notes/{{ notes.id }}">Удалить
+                    запись</a>
+            {% endif %}
+        {% endif %}
+    </main>
+{% endblock %}

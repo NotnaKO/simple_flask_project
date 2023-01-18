@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+    <br>
+    <div class="container">
+        <div class="jumbotron p-4 p-md-5 text-white rounded bg-dark">
+            <div class="col-md-6 px-0">
+                <h1 class="display-4 font-italic">{{ main_notes.header }}</h1>
+                <p class="lead my-3">{{ main_notes.preview }}</p>
+                <p class="lead mb-0"><a href="/notes/{{ main_notes.id }}"
+                                        class="text-white font-weight-bold">Читать
+                    полностью...</a></p>
+            </div>
+        </div>
+        {% if notes2.z %}
+            <div class="row mb-2">
+                <div class="col-md-6">
+                    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                        <div class="col p-4 d-flex flex-column position-static">
+                            {% if not by_category %}
+                                {% if notes2.main_category == "health" %}
+                                    <a href="/notes/category/health/0"><strong
+                                            class="d-inline-block mb-2 text-success">Здоровье</strong></a>
+                                {% elif notes2.main_category == "technology" %}
+                                    <a href="/notes/category/technology/0"><strong
+                                            class="d-inline-block mb-2 text-info">Технологии</strong></a>
+                                {% elif notes2.main_category == "politic" %}
+                                    <a href="/notes/category/politic/0"><strong
+                                            class="d-inline-block mb-2 text-warning">Политика</strong></a>
+                                {% endif %}{% endif %}
+                            <h3 class="mb-0">{{ notes2.header }}</h3>
+                            <div class="mb-1 text-muted">{{ notes2.date }}</div>
+                            <p class="card-text mb-auto">{{ notes2.preview }}</p>
+                            <a href="/notes/{{ notes2.id }}" class="stretched-link">Читать
+                                полностью...</a>
+                        </div>
+                    </div>
+                </div>
+                {% if notes3.z %}
+                    <div class="col-md-6">
+                        <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+                            <div class="col p-4 d-flex flex-column position-static">
+                                {% if not by_category %}
+                                    {% if notes3.main_category == "health" %}
+                                        <a href="/notes/category/health/0"><strong
+                                                class="d-inline-block mb-2 text-success">Здоровье</strong></a>
+                                    {% elif notes3.main_category == "technology" %}
+                                        <a href="/notes/category/technology/0"><strong
+                                                class="d-inline-block mb-2 text-primary">Технологии</strong></a>
+                                    {% elif notes3.main_category == "politic" %}
+                                        <a href="/notes/category/politic/0"><strong
+                                                class="d-inline-block mb-2 text-warning">Политика</strong></a>
+                                    {% endif %}{% endif %}
+                                <h3 class="mb-0">{{ notes3.header }}</h3>
+                                <div class="mb-1 text-muted">{{ notes3.date }}</div>
+                                <p class="mb-auto">{{ notes3.preview }}</p>
+                                <a href="/notes/{{ notes3.id }}" class="stretched-link">Читать
+                                    полностью...</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col blog-main">
+                {% if notes4.z %}
+                    <h3 class="pb-4 mb-4 font-italic border-bottom" style="text-align: center">
+                        Статьи
+                    </h3>
+                    <div class="blog-post">
+                        <h2 class="blog-post-title"
+                            style="text-align: center">{{ notes4.header }}</h2>
+                        <p class="blog-post-meta">{{ notes4.date }}, <a
+                                href="/users/{{ notes4.author }}">{{ notes4.author_surname
+                    + ' ' +
+                    notes4.author_name }}</a></p>
+                        <p>{{ notes4.content }}</p>
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.position == 1 or (current_user.position == 2 and notes4.author == current_user.id) %}
+                                <a class="btn btn-secondary my-2 my-sm-0"
+                                   href="/notes/edit_notes/{{ notes4.id }}">Редактировать
+                                    запись</a>
+                                <a class="btn btn-danger my-2 my-sm-0"
+                                   href="/notes/delete_notes/{{ notes4.id }}">Удалить запись</a>
+                            {% endif %}
+                        {% endif %}
+                    </div><!-- /.blog-post -->
+                    {% if notes5.z %}
+                        <div class="blog-post">
+                            <h2 class="blog-post-title"
+                                style="text-align: center">{{ notes5.header }}</h2>
+                            <p class="blog-post-meta">{{ notes5.date }}, <a
+                                    href="/users/{{ notes5.author }}">{{ notes5.author_surname
+                    + ' ' +
+                    notes5.author_name }}</a></p>
+                            <p>{{ notes5.content }}</p>
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.position == 1 or (current_user.position == 2 and notes5.author == current_user.id) %}
+                                    <a class="btn btn-secondary my-2 my-sm-0"
+                                       href="/notes/edit_notes/{{ notes5.id }}">Редактировать
+                                        запись</a>
+                                    <a class="btn btn-danger my-2 my-sm-0"
+                                       href="/notes/delete_notes/{{ notes5.id }}">Удалить
+                                        запись</a>
+                                {% endif %}
+                            {% endif %}
+                        </div><!-- /.blog-post -->
+                    {% endif %}
+                    {% if notes6.z %}
+                        <div class="blog-post">
+                            <h2 class="blog-post-title"
+                                style="text-align: center">{{ notes6.header }}</h2>
+                            <p class="blog-post-meta">{{ notes6.date }}, <a
+                                    href="/users/{{ notes6.author }}">{{ notes6.author_surname
+                    + ' ' +
+                    notes6.author_name }}</a></p>
+                            <p>{{ notes6.content }}</p>
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.position == 1 or (current_user.position == 2 and notes6.author == current_user.id) %}
+                                    <a class="btn btn-secondary my-2 my-sm-0"
+                                       href="/notes/edit_notes/{{ notes6.id }}">Редактировать
+                                        запись</a>
+                                    <a class="btn btn-danger my-2 my-sm-0"
+                                       href="/notes/delete_notes/{{ notes6.id }}">Удалить
+                                        запись</a>
+                                {% endif %}
+                            {% endif %}
+                        </div><!-- /.blog-post -->
+                    {% endif %}
+                {% endif %}
+                <nav class="blog-pagination">
+                    {% if page.id >= 1 %}
+                        {% if not by_author %}
+                            <a class="btn btn-outline-primary"
+                               href="/notes/page/{{ page.id - 1 }}">{{ page.id }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-primary"
+                               href="/notes/notes_by_author/{{ main_notes.author }}/page/{{ page.id - 1 }}">{{ page.id }}</a>
+                        {% endif %}
+                    {% endif %}
+                    <a class="btn btn-outline-secondary disabled" href="#" tabindex="-2"
+                       aria-disabled="true">{{ page.id + 1 }}</a>
+                    {% if page.id < max_page_id %}
+                        {% if not by_author %}
+                            <a class="btn btn-outline-primary" href="/notes/page/{{ page.id + 1 }}"
+                               tabindex="-1">{{ page.id + 2 }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-primary"
+                               href="/notes/notes_by_author/{{ main_notes.author }}/page/{{ page.id + 1 }}">{{ page.id + 2 }}</a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
+            </div><!-- /.blog-main -->
+        </div><!-- /.row -->
+    </main>
+{% endblock %}
